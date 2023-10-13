@@ -1,6 +1,5 @@
 
 let productsHTML= '';
-
 products.forEach((product)=> {
     productsHTML += ` 
     <div class="product-container">
@@ -17,7 +16,7 @@ products.forEach((product)=> {
             <div class="product-price">$${(product.priceCents/100).toFixed(2)}</div>
 
             <div class="product-quantity-container">
-                <select>
+                <select class="js-quantity-selector-${product.id}">
                 <option selected value="1">1</option>
                 <option value="2">2</option>
                 <option value="3">3</option>
@@ -33,35 +32,37 @@ products.forEach((product)=> {
 
             <div class="product-spacer"></div>
 
-            <div class="added-to-cart">
+            <div class="js-added-to-cart-${product.id} added-to-cart">
                 <img src="images/icons/checkmark.png">
                 Added
             </div>
 
             <button class="js-add-to-cart add-to-cart-button button-primary"
-            data-products-id='${product.id}'>Add to Cart</button>
+            data-product-id='${product.id}'>Add to Cart</button>
             </div>
     `
 })
 document.querySelector('.js-products-grid').innerHTML=productsHTML;
 document.querySelectorAll('.js-add-to-cart').forEach((button) => {
+    let addedMessageTimeoutId;
     button.addEventListener('click', () =>{
     
-    const productId= button.dataset.productsId;
+    const {productId}= button.dataset //Destructuring 
+
     let matchingItem;
         cart.forEach((item) => {
         if(productId === item.productId){ //checks if item is in the cart
         matchingItem=item;
         }
-        
         });
 
+        let quantity= Number(document.querySelector(`.js-quantity-selector-${productId}`).value);
         if(matchingItem){ //increase the quantity
-            matchingItem.quantity += 1
+            matchingItem.quantity += quantity
         } else {
             cart.push({
-                productId: productId,
-                quantity: 1
+                productId,
+                quantity
                 });
         }
 
@@ -70,7 +71,16 @@ document.querySelectorAll('.js-add-to-cart').forEach((button) => {
         cartQuantity += item.quantity;
         })
 document.querySelector('.js-cart-quantity').innerHTML= cartQuantity;
-
+document.querySelector(`.js-added-to-cart-${productId}`)
+    .classList.add('added-to-cart-visible');
+        if(addedMessageTimeoutId){  // Check if a previous timeoutId exists. If it does, we will stop it.
+        clearTimeout(addedMessageTimeoutId)
+        } 
+        const timeoutId= setTimeout(() => {
+    document.querySelector(`.js-added-to-cart-${productId}`)
+    .classList.remove('added-to-cart-visible');
+}, 2000)
+    addedMessageTimeoutId = timeoutId //save timeoutId so we can stop it later
     })
-
+    
 })
