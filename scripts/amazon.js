@@ -1,6 +1,5 @@
-import {cart} from '../data/cart.js';
+import {cart, addToCart} from '../data/cart.js';
 import {products} from '../data/products.js';
-
 
 let productsHTML= '';
 products.forEach((product)=> {
@@ -46,44 +45,31 @@ products.forEach((product)=> {
     `
 })
 document.querySelector('.js-products-grid').innerHTML=productsHTML;
-document.querySelectorAll('.js-add-to-cart').forEach((button) => {
+
+function updateCartQuantity(productId){
+    let cartQuantity=0;
     let addedMessageTimeoutId;
-    button.addEventListener('click', () =>{
-    
-    const {productId}= button.dataset //Destructuring 
 
-    let matchingItem;
-        cart.forEach((item) => {
-        if(productId === item.productId){ //checks if item is in the cart
-        matchingItem=item;
-        }
-        });
-
-        let quantity= Number(document.querySelector(`.js-quantity-selector-${productId}`).value);
-        if(matchingItem){ //increase the quantity
-            matchingItem.quantity += quantity
-        } else {
-            cart.push({
-                productId,
-                quantity
-                });
-        }
-
-        let cartQuantity=0;
-        cart.forEach((item) => {
-        cartQuantity += item.quantity;
-        })
-document.querySelector('.js-cart-quantity').innerHTML= cartQuantity;
-document.querySelector(`.js-added-to-cart-${productId}`)
+    cart.forEach((cartItem) => {
+    cartQuantity += cartItem.quantity;
+    })
+    document.querySelector('.js-cart-quantity').innerHTML= cartQuantity;
+    document.querySelector(`.js-added-to-cart-${productId}`)
     .classList.add('added-to-cart-visible');
         if(addedMessageTimeoutId){  // Check if a previous timeoutId exists. If it does, we will stop it.
-        clearTimeout(addedMessageTimeoutId)
+            clearTimeout(addedMessageTimeoutId)
         } 
         const timeoutId= setTimeout(() => {
-    document.querySelector(`.js-added-to-cart-${productId}`)
-    .classList.remove('added-to-cart-visible');
-}, 2000)
+            document.querySelector(`.js-added-to-cart-${productId}`)
+            .classList.remove('added-to-cart-visible');
+        }, 2000)
     addedMessageTimeoutId = timeoutId //save timeoutId so we can stop it later
+}
+
+document.querySelectorAll('.js-add-to-cart').forEach((button) => {
+    button.addEventListener('click', () =>{
+        const {productId}= button.dataset //Destructuring 
+        addToCart(productId);
+        updateCartQuantity(productId);
     })
-    
 })
