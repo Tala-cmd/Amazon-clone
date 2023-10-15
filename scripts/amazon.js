@@ -1,8 +1,10 @@
-import {cart, addToCart} from '../data/cart.js';
+import {cart, addToCart, calculateCartQuantity} from '../data/cart.js';
 import {products} from '../data/products.js';
 import {formatCurrency} from './utils/money.js';
 
 let productsHTML= '';
+showCartQuantity();
+
 products.forEach((product)=> {
     productsHTML += ` 
     <div class="product-container">
@@ -48,13 +50,10 @@ products.forEach((product)=> {
 document.querySelector('.js-products-grid').innerHTML=productsHTML;
 
 function updateCartQuantity(productId){
-    let cartQuantity=0;
     let addedMessageTimeoutId;
 
-    cart.forEach((cartItem) => {
-    cartQuantity += cartItem.quantity;
-    })
-    document.querySelector('.js-cart-quantity').innerHTML= cartQuantity;
+    showCartQuantity();
+
     document.querySelector(`.js-added-to-cart-${productId}`)
     .classList.add('added-to-cart-visible');
         if(addedMessageTimeoutId){  // Check if a previous timeoutId exists. If it does, we will stop it.
@@ -72,5 +71,11 @@ document.querySelectorAll('.js-add-to-cart').forEach((button) => {
         const {productId}= button.dataset //Destructuring 
         addToCart(productId);
         updateCartQuantity(productId);
+        
     })
 })
+
+function showCartQuantity(){
+    let cartQuantity= calculateCartQuantity();
+    document.querySelector('.js-cart-quantity').innerHTML=`${cartQuantity}`;
+}
