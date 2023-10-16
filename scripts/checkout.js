@@ -48,7 +48,8 @@ cart.forEach((cartItem) => {
                 <span class="js-update-quantity-link update-quantity-link link-primary"
                 data-product-id="${matchingProduct.id}"> Update </span>
 
-                <input class="quantity-input js-quantity-input-${matchingProduct.id}" type="number">
+                <input class="quantity-input js-quantity-input-${matchingProduct.id}" type="number" min="1" max="1000" 
+                onkeydown= "handleSave(event)">
                 <span class="save-quantity-link link-primary js-save-link"
                 data-product-id="${matchingProduct.id}">Save</span>
 
@@ -122,20 +123,33 @@ document.querySelectorAll('.js-update-quantity-link').forEach((link) =>{
     })
 })
 
+//THE KEYBOARD ACTIONS ARE NOT WORKING// 
+
+function handleSave(link){
+    const productId = link.dataset.productId;
+    const container = document.querySelector(`.js-cart-item-container-${productId}`);
+    container.classList.remove('is-editing-quantity');
+    
+    const quantityInput= document.querySelector(`.js-quantity-input-${productId}`);
+    const newQuantity = Number(quantityInput.value);
+
+    updateQuantity(productId, newQuantity);
+    showCartQuantity();
+
+    const quantityLabel = document.querySelector(`.js-quantity-label-${productId}`);
+    quantityLabel.innerHTML=newQuantity;
+    showCartQuantity();
+}
+
 document.querySelectorAll('.js-save-link').forEach((link) =>{
     link.addEventListener('click', () =>{
-        const productId = link.dataset.productId;
-        const container = document.querySelector(`.js-cart-item-container-${productId}`);
-        container.classList.remove('is-editing-quantity');
-        
-        const quantityInput= document.querySelector(`.js-quantity-input-${productId}`);
-        const newQuantity = Number(quantityInput.value);
+        handleSave(link)
+    })
 
-        updateQuantity(productId, newQuantity);
-        showCartQuantity();
+    link.addEventListener('keydown', (event) =>{
+        if(event.key === "Enter"){
+            handleSave(link)
+        }
+    })
+})
 
-        const quantityLabel = document.querySelector(`.js-quantity-label-${productId}`);
-        quantityLabel.innerHTML=newQuantity;
-        updateQuantity();
-})
-})
